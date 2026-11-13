@@ -136,8 +136,9 @@ docker compose up -d --build
 | Grafana | http://localhost:3001 |
 | Prometheus | http://localhost:9090 |
 | Loki | http://localhost:3100 |
+| Tempo trace API | http://localhost:3200 |
 
-ShopSphere host ports are shifted to avoid collisions: API `8001`, frontend `3002`, PostgreSQL `5433`. Internal container traffic uses port `8000`. Prometheus scrapes `shopsphere-backend:8000/metrics`; ShopSphere forwards HTTP 5xx events to DevInsight using the shared API key and sends OTLP traces to the DevInsight collector.
+ShopSphere host ports are shifted to avoid collisions: API `8001`, frontend `3002`, PostgreSQL `5433`. Internal container traffic uses port `8000`. Prometheus scrapes `shopsphere-backend:8000/metrics`; ShopSphere forwards HTTP 5xx events to DevInsight using the shared API key and sends OTLP traces to the DevInsight collector. The collector exports traces to Tempo, and DevInsight queries Tempo on port `3200`.
 
 To stop either stack, run `docker compose down` in that repository. Keep the shared `observability-net` while the other stack is running.
 
@@ -159,7 +160,7 @@ Set `MONITORING_MODE=live` in `.env` and configure:
 ```env
 PROMETHEUS_URL=http://your-prometheus:9090
 LOKI_URL=http://your-loki:3100
-OTEL_COLLECTOR_URL=http://your-otel:4318
+OTEL_COLLECTOR_URL=http://localhost:3200  # Tempo trace-query API
 ```
 
 ---
