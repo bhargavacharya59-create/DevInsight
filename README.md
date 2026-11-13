@@ -88,23 +88,58 @@ Visit http://localhost:5173
 
 ---
 
-## Docker Compose (Full Stack)
+## Docker Compose (DevInsight + ShopSphere)
+
+The two repositories run as separate Compose projects but share one Docker network for metrics, error events, and OTLP traffic. Start DevInsight first.
+
+### 1. Prepare DevInsight
 
 ```bash
-# Copy environment file
+cp .env.example .env
 cp backend/.env.example backend/.env
-# Edit backend/.env with your GEMINI_API_KEY
-
-# Start everything
-docker compose up -d
-
-# Services:
-# Frontend:    http://localhost:3000
-# Backend API: http://localhost:8000
-# Grafana:     http://localhost:3001  (admin / devinsight_grafana)
-# Prometheus:  http://localhost:9090
-# Loki:        http://localhost:3100
 ```
+
+Generate one strong shared key (run once):
+
+```bash
+openssl rand -hex 32
+```
+
+Put that value in `INGEST_API_KEY` in the root `.env` files of **both** repositories. Do not commit either `.env` file.
+
+Create the shared network and start DevInsight:
+
+```bash
+docker network create observability-net
+docker compose up -d --build
+```
+
+### 2. Start ShopSphere
+
+In the ShopSphere repository root:
+
+```bash
+cp .env.example .env
+cp backend/.env.example backend/.env
+# Set the SAME INGEST_API_KEY in this repository's root .env
+docker compose up -d --build
+```
+
+### 3. Local URLs
+
+| Component | URL |
+|---|---|
+| DevInsight dashboard | http://localhost:3000 |
+| DevInsight API docs | http://localhost:8000/docs |
+| ShopSphere storefront | http://localhost:3002 |
+| ShopSphere API docs | http://localhost:8001/docs |
+| Grafana | http://localhost:3001 |
+| Prometheus | http://localhost:9090 |
+| Loki | http://localhost:3100 |
+
+ShopSphere host ports are shifted to avoid collisions: API `8001`, frontend `3002`, PostgreSQL `5433`. Internal container traffic uses port `8000`. Prometheus scrapes `shopsphere-backend:8000/metrics`; ShopSphere forwards HTTP 5xx events to DevInsight using the shared API key and sends OTLP traces to the DevInsight collector.
+
+To stop either stack, run `docker compose down` in that repository. Keep the shared `observability-net` while the other stack is running.
 
 ---
 
