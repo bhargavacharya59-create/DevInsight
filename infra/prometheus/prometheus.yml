@@ -16,11 +16,8 @@ scrape_configs:
     static_configs:
       - targets: ['otel-collector:8888']
 
-  # ShopSphere services (configure when available)
+  # ShopSphere backend shares the observability-net with this Prometheus instance.
   - job_name: 'shopsphere'
     static_configs:
-      - targets: ['shopsphere-api:8080']
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: job
-        replacement: shopsphere
+      - targets: ['shopsphere-backend:8000']
+    metrics_path: '/metrics'
