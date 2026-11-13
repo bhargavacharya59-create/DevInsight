@@ -1,8 +1,6 @@
 """Application configuration using Pydantic Settings."""
 from typing import List, Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import field_validator
-import os
 
 
 class Settings(BaseSettings):
@@ -19,15 +17,21 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
 
     # Database
-    DATABASE_URL: str = "postgresql+asyncpg://devinsight:devinsight_pass@localhost:5432/devinsight_db"
-    DATABASE_URL_SYNC: str = "postgresql://devinsight:devinsight_pass@localhost:5432/devinsight_db"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./devinsight_dev.db"
+    DATABASE_URL_SYNC: str = "sqlite:///./devinsight_dev.db"
 
     # Gemini
     GEMINI_API_KEY: Optional[str] = None
     GEMINI_MODEL: str = "gemini-1.5-flash"
 
+    # GitHub
+    GITHUB_TOKEN: Optional[str] = None
+    GITHUB_REPO_OWNER: Optional[str] = None
+    GITHUB_REPO_NAME: Optional[str] = None
+    GITHUB_WEBHOOK_SECRET: str = "devinsight-webhook-secret"
+
     # Monitoring
-    MONITORING_MODE: str = "demo"  # "demo" or "live"
+    MONITORING_MODE: str = "demo"
 
     # Prometheus
     PROMETHEUS_URL: str = "http://localhost:9090"
@@ -57,6 +61,10 @@ class Settings(BaseSettings):
     @property
     def gemini_available(self) -> bool:
         return bool(self.GEMINI_API_KEY)
+
+    @property
+    def github_configured(self) -> bool:
+        return bool(self.GITHUB_TOKEN and self.GITHUB_REPO_OWNER and self.GITHUB_REPO_NAME)
 
 
 settings = Settings()

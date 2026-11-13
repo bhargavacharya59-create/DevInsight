@@ -18,18 +18,17 @@ logger = logging.getLogger("devinsight")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup and shutdown lifecycle."""
     logger.info("DevInsight AI starting up...")
     logger.info("Monitoring mode: %s", settings.MONITORING_MODE)
+    logger.info("GitHub configured: %s", settings.github_configured)
+    logger.info("Gemini available: %s", settings.gemini_available)
 
-    # Create tables
     try:
         await create_tables()
         logger.info("Database tables ready")
     except Exception as e:
         logger.error("Failed to create database tables: %s", e)
 
-    # Seed demo data
     try:
         from app.db.base import AsyncSessionLocal
         from app.services.demo_seeder import seed_demo_data
@@ -39,7 +38,6 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error("Failed to seed demo data: %s", e)
 
-    # Train anomaly detector
     try:
         detector = get_detector()
         if not detector.is_trained:
@@ -49,19 +47,18 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error("Failed to train anomaly detector: %s", e)
 
-    logger.info("DevInsight AI ready")
+    logger.info("DevInsight AI ready — visit http://localhost:8000/docs")
     yield
     logger.info("DevInsight AI shutting down")
 
 
 app = FastAPI(
     title="DevInsight AI",
-    description="AI-powered observability and incident investigation platform",
-    version="1.0.0",
+    description="AI-powered AIOps and Self-Healing DevOps Platform",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
-# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
@@ -70,7 +67,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routers
+# ── Existing routers ──────────────────────────────────────────────────────────
 from app.api.health import router as health_router
 from app.api.dashboard import router as dashboard_router
 from app.api.incidents import router as incidents_router
@@ -83,6 +80,13 @@ from app.api.rca import router as rca_router
 from app.api.demo import router as demo_router
 from app.api.ai_assistant import router as ai_router
 
+# ── New routers ───────────────────────────────────────────────────────────────
+from app.api.github_api import router as github_router
+from app.api.remediation import router as remediation_router
+from app.api.webhook import router as webhook_router
+from app.api.deployments import router as deployments_router
+from app.api.integrations import router as integrations_router
+
 app.include_router(health_router)
 app.include_router(dashboard_router)
 app.include_router(incidents_router)
@@ -94,14 +98,21 @@ app.include_router(anomaly_router)
 app.include_router(rca_router)
 app.include_router(demo_router)
 app.include_router(ai_router)
+app.include_router(github_router)
+app.include_router(remediation_router)
+app.include_router(webhook_router)
+app.include_router(deployments_router)
+app.include_router(integrations_router)
 
 
 @app.get("/")
 async def root():
     return {
         "name": "DevInsight AI",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "docs": "/docs",
         "health": "/health",
         "monitoring_mode": settings.MONITORING_MODE,
+        "github_configured": settings.github_configured,
+        "gemini_available": settings.gemini_available,
     }

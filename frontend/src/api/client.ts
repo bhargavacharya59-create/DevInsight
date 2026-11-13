@@ -85,3 +85,26 @@ export const explainIncident = (incident_id: string) =>
 
 export const askQuestion = (data: { question: string; incident_id?: string; context?: Record<string, unknown> }) =>
   api.post('/ai/ask', data).then(r => r.data);
+
+// ── GitHub ────────────────────────────────────────────────────────────────────
+export const getGithubStatus = () => api.get('/github/status').then(r => r.data);
+export const getCommits = (branch = 'main') => api.get('/github/commits', { params: { branch } }).then(r => r.data);
+export const getCommitDiff = (sha: string) => api.get(`/github/commits/${sha}`).then(r => r.data);
+export const getPullRequests = (state = 'open') => api.get('/github/pull-requests', { params: { state } }).then(r => r.data);
+export const getWorkflowRuns = () => api.get('/github/workflows').then(r => r.data);
+export const getWorkflowJobs = (runId: number) => api.get(`/github/workflows/${runId}/jobs`).then(r => r.data);
+
+// ── Remediation ───────────────────────────────────────────────────────────────
+export const startRemediation = (data: { incident_id: string; retry_count?: number }) =>
+  api.post('/remediation/start', data).then(r => r.data);
+export const getDemoRemediation = () => api.get('/remediation/demo').then(r => r.data);
+
+// ── Deployments ───────────────────────────────────────────────────────────────
+export const getDeployments = () => api.get('/deployments').then(r => r.data);
+export const compareDeployment = (id: string) => api.get(`/deployments/${id}/compare`).then(r => r.data);
+
+// ── Integrations ──────────────────────────────────────────────────────────────
+export const getIntegrations = () => api.get('/integrations').then(r => r.data);
+
+// ── Webhook events ────────────────────────────────────────────────────────────
+export const getWebhookEvents = () => api.get('/webhook/events').then(r => r.data);

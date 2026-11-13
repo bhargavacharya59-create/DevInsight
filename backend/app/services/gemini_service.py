@@ -92,6 +92,13 @@ class GeminiService:
     def available(self) -> bool:
         return self._available
 
+    def _get_model(self) -> str:
+        """Return model name with models/ prefix if needed."""
+        m = settings.GEMINI_MODEL
+        if not m.startswith("models/"):
+            m = f"models/{m}"
+        return m
+
     def explain_incident(
         self,
         incident: Dict[str, Any],
@@ -106,10 +113,9 @@ class GeminiService:
             return self._fallback_explanation(incident, rca_result)
 
         try:
-            from google import genai
             prompt = self._build_prompt(incident, rca_result, anomaly_result)
             response = self._client.models.generate_content(
-                model=settings.GEMINI_MODEL,
+                model=self._get_model(),
                 contents=prompt,
             )
             text = response.text.strip()
@@ -156,7 +162,7 @@ confidently, say so clearly. Include which pieces of evidence support your answe
 
             from google import genai
             response = self._client.models.generate_content(
-                model=settings.GEMINI_MODEL,
+                model=self._get_model(),
                 contents=prompt,
             )
             return {

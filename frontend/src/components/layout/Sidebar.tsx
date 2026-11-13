@@ -2,7 +2,8 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Activity, AlertTriangle, Search,
   BarChart2, FileText, GitBranch, Bot, Settings,
-  Zap, ChevronLeft, ChevronRight,
+  Zap, ChevronLeft, ChevronRight, GitPullRequest,
+  Wrench, History, Plug,
 } from 'lucide-react';
 import { useState } from 'react';
 import clsx from 'clsx';
@@ -12,10 +13,14 @@ const navItems = [
   { to: '/monitoring', label: 'Live Monitoring', icon: Activity },
   { to: '/incidents', label: 'Incidents', icon: AlertTriangle },
   { to: '/rca', label: 'Root Cause Analysis', icon: Search },
+  { to: '/cicd', label: 'CI/CD Pipelines', icon: GitPullRequest },
+  { to: '/code-fixes', label: 'Code Fixes', icon: Wrench },
+  { to: '/deployments', label: 'Deployments', icon: History },
   { to: '/metrics', label: 'Metrics Explorer', icon: BarChart2 },
   { to: '/logs', label: 'Logs Explorer', icon: FileText },
   { to: '/service-map', label: 'Service Map', icon: GitBranch },
   { to: '/ai-assistant', label: 'AI Assistant', icon: Bot },
+  { to: '/integrations', label: 'Integrations', icon: Plug },
   { to: '/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -37,7 +42,7 @@ export default function Sidebar() {
         {!collapsed && (
           <div className="min-w-0">
             <span className="block font-semibold text-white text-sm leading-tight">DevInsight AI</span>
-            <span className="block text-xs text-slate-400">Observability Platform</span>
+            <span className="block text-xs text-slate-400">AIOps Platform</span>
           </div>
         )}
       </div>
@@ -70,7 +75,6 @@ export default function Sidebar() {
         <button
           onClick={() => setCollapsed(c => !c)}
           className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-surface-700 text-sm transition-colors"
-          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           {!collapsed && <span className="text-xs">Collapse</span>}
