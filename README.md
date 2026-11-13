@@ -1,93 +1,259 @@
 # DevInsight AI
 
+**AI-powered observability and incident investigation platform for ShopSphere.**
 
+DevInsight AI monitors the ShopSphere e-commerce platform, detects anomalies using machine learning, performs evidence-based root cause analysis, and generates AI-powered explanations via the Gemini API.
 
-## Getting started
+---
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## Architecture Overview
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/bhargavacharya59/devinsight-ai.git
-git branch -M main
-git push -uf origin main
+ShopSphere (e-commerce)
+    │
+    ▼ OpenTelemetry Collector
+    ├── Prometheus (metrics)
+    ├── Loki (logs)
+    └── Tempo/OTel (traces)
+            │
+            ▼ DevInsight AI Backend (FastAPI + Python)
+            ├── Isolation Forest Anomaly Detection
+            ├── Evidence-Based RCA Engine
+            ├── Gemini AI Explanation
+            └── PostgreSQL (incident persistence)
+                    │
+                    ▼ DevInsight AI Dashboard (React + TypeScript)
 ```
 
-## Integrate with your tools
+---
 
-* [Set up project integrations](https://gitlab.com/bhargavacharya59/devinsight-ai/-/settings/integrations)
+## Features
 
-## Collaborate with your team
+| Feature | Status |
+|---|---|
+| Demo Mode with 8 synthetic failure scenarios | ✅ |
+| Isolation Forest anomaly detection (real ML) | ✅ |
+| Evidence-based RCA engine (deterministic) | ✅ |
+| Gemini AI incident explanation | ✅ (needs API key) |
+| Incident management + deduplication | ✅ |
+| PostgreSQL persistence | ✅ |
+| Prometheus integration | ✅ (live mode) |
+| Loki integration | ✅ (live mode) |
+| OpenTelemetry integration | ✅ (live mode) |
+| Interactive dashboard | ✅ |
+| Service map | ✅ |
+| Metrics explorer | ✅ |
+| Logs explorer | ✅ |
+| AI assistant chatbot | ✅ |
+| Docker Compose deployment | ✅ |
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+---
 
-## Test and Deploy
+## Quick Start (Local Development)
 
-Use the built-in continuous integration in GitLab.
+### Prerequisites
+- Python 3.11+ (3.14 supported)
+- Node.js 18+
+- PostgreSQL 14+ (or Docker)
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+### 1. Backend
 
-***
+```bash
+cd backend
 
-# Editing this README
+# Copy and configure environment
+cp .env.example .env
+# Edit .env — set GEMINI_API_KEY if you have one
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+# Install dependencies
+pip install -r requirements.txt
+pip install aiosqlite  # for local SQLite dev
 
-## Suggestions for a good README
+# Start the backend
+uvicorn app.main:app --reload --port 8000
+```
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+The backend starts in **Demo Mode** by default using SQLite.  
+Visit http://localhost:8000/docs for the interactive API docs.
 
-## Name
-Choose a self-explaining name for your project.
+### 2. Frontend
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Visit http://localhost:5173
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+---
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## Docker Compose (Full Stack)
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+```bash
+# Copy environment file
+cp backend/.env.example backend/.env
+# Edit backend/.env with your GEMINI_API_KEY
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+# Start everything
+docker compose up -d
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+# Services:
+# Frontend:    http://localhost:3000
+# Backend API: http://localhost:8000
+# Grafana:     http://localhost:3001  (admin / devinsight_grafana)
+# Prometheus:  http://localhost:9090
+# Loki:        http://localhost:3100
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+---
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## Monitoring Modes
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### Demo Mode (default)
+All telemetry is **synthetic and clearly labeled**. No ShopSphere connection required.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+- Select a scenario in the Live Monitoring page
+- Watch telemetry change in real-time
+- See anomaly detection trigger
+- View the RCA investigation
+- Read the AI explanation
 
-## License
-For open source projects, say how it is licensed.
+### Live Mode
+Set `MONITORING_MODE=live` in `.env` and configure:
+```env
+PROMETHEUS_URL=http://your-prometheus:9090
+LOKI_URL=http://your-loki:3100
+OTEL_COLLECTOR_URL=http://your-otel:4318
+```
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+---
+
+## Demo Scenarios
+
+| Scenario | Category | What it simulates |
+|---|---|---|
+| Normal Operation | baseline | Healthy baseline traffic |
+| Database Latency Spike | database | 8× DB latency, cascading failures |
+| HTTP 500 Error Spike | api | 15× error rate in ShopSphere API |
+| Payment Failures | payment | 12× payment error rate |
+| CPU Spike | infrastructure | CPU at ~90% on API host |
+| Memory Leak | infrastructure | Steadily rising memory |
+| Bad Deployment | deployment | Post-deploy regression |
+| DB Connection Failures | database | Connection pool exhausted |
+
+---
+
+## Anomaly Detection
+
+Uses **Isolation Forest** (scikit-learn) — not random scores.
+
+**Features:**
+- Request rate, Error rate, Response latency
+- CPU utilization, Memory utilization
+- Database query latency, Service error count
+
+The model is trained on synthetic normal-operation data on startup.  
+In live mode, it trains on actual telemetry history.
+
+---
+
+## RCA Engine
+
+The RCA engine is **deterministic** — it scores candidates based on evidence:
+
+1. **Metric signals** — latency increase, error rate spike, CPU/memory saturation
+2. **Log patterns** — connection timeouts, exceptions, circuit breakers
+3. **Trace signals** — error rate, slow spans by service
+4. **Deployment correlation** — deployment timing vs. incident onset
+
+Gemini AI provides the *explanation* on top of the deterministic results.
+
+---
+
+## Gemini AI Integration
+
+Configure in `.env`:
+```env
+GEMINI_API_KEY=your_key_here
+GEMINI_MODEL=gemini-1.5-flash
+```
+
+The app works fully without a Gemini key — all RCA results are available via the deterministic engine. The AI provides natural-language explanation and additional context.
+
+---
+
+## API Documentation
+
+Interactive docs at: http://localhost:8000/docs
+
+Key endpoints:
+```
+GET  /health
+GET  /api/dashboard/overview
+GET  /api/incidents
+GET  /api/incidents/{id}
+POST /api/incidents/{id}/acknowledge
+POST /api/incidents/{id}/resolve
+GET  /api/incidents/{id}/rca
+POST /api/rca/investigate
+POST /api/anomaly/detect
+GET  /api/metrics
+GET  /api/logs
+GET  /api/traces
+GET  /api/services
+GET  /api/services/map
+GET  /api/demo/scenarios
+POST /api/demo/scenarios/{id}/start
+POST /api/demo/scenarios/{id}/stop
+POST /api/demo/reset
+POST /api/ai/explain
+POST /api/ai/ask
+```
+
+---
+
+## Testing
+
+```bash
+cd backend
+python -m pytest tests/ -v
+```
+
+Tests cover:
+- Isolation Forest anomaly detection (7 tests)
+- RCA engine (6 tests)
+- Demo telemetry generator (7 tests)
+- Gemini fallback behavior (3 tests)
+
+---
+
+## Project Structure
+
+```
+devinsight-ai/
+├── backend/
+│   ├── app/
+│   │   ├── api/          # FastAPI routers
+│   │   ├── core/         # Config, logging
+│   │   ├── db/           # SQLAlchemy engine
+│   │   ├── ml/           # Isolation Forest detector
+│   │   ├── models/       # ORM models
+│   │   ├── schemas/      # Pydantic schemas
+│   │   ├── services/     # Business logic
+│   │   └── telemetry/    # Prometheus/Loki/OTel clients
+│   └── tests/
+├── frontend/
+│   └── src/
+│       ├── api/          # Axios client
+│       ├── components/   # Reusable components
+│       ├── pages/        # Route pages
+│       ├── types/        # TypeScript types
+│       └── utils/        # Formatters
+├── infra/
+│   ├── prometheus/       # prometheus.yml
+│   ├── loki/             # loki-config.yaml
+│   ├── otel/             # otel-collector-config.yaml
+│   └── grafana/          # Datasource provisioning
+└── docker-compose.yml
+```

@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --scrollbar-width: 6px;
+  }
+
+  html {
+    @apply bg-surface-900 text-slate-100;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  body {
+    @apply antialiased;
+    background-color: #0a0e1a;
+    color: #e2e8f0;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+    height: var(--scrollbar-width);
+  }
+  ::-webkit-scrollbar-track {
+    background: #0f1629;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2a3660;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #4f46e5;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface-800 border border-slate-700/50 rounded-xl;
+  }
+
+  .card-hover {
+    @apply card transition-colors hover:border-brand-500/50;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium rounded-lg transition-colors;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-surface-600 hover:bg-surface-500 text-slate-200 text-sm font-medium rounded-lg border border-slate-700/50 transition-colors;
+  }
+
+  .badge-critical {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-red-900/50 text-red-300 border border-red-700/50;
+  }
+  .badge-high {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-orange-900/50 text-orange-300 border border-orange-700/50;
+  }
+  .badge-medium {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-yellow-900/50 text-yellow-300 border border-yellow-700/50;
+  }
+  .badge-low {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-900/50 text-blue-300 border border-blue-700/50;
+  }
+
+  .status-healthy {
+    @apply text-emerald-400;
+  }
+  .status-degraded {
+    @apply text-yellow-400;
+  }
+  .status-unhealthy {
+    @apply text-red-400;
+  }
+  .status-unknown {
+    @apply text-slate-400;
+  }
+
+  .demo-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 bg-purple-900/50 text-purple-300 border border-purple-700/50 rounded text-xs font-medium;
+  }
+}
