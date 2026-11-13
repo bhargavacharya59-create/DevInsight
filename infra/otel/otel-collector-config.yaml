@@ -19,6 +19,10 @@ exporters:
     endpoint: "0.0.0.0:8888"
   loki:
     endpoint: http://loki:3100/loki/api/v1/push
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
   logging:
     loglevel: warn
 
@@ -27,7 +31,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [logging]
+      exporters: [otlp/tempo]
     metrics:
       receivers: [otlp]
       processors: [memory_limiter, batch]
