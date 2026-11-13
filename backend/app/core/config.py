@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     GITHUB_REPO_NAME: Optional[str] = None
     GITHUB_WEBHOOK_SECRET: str = "devinsight-webhook-secret"
 
+    # ShopSphere integration
+    SHOPSPHERE_URL: str = "http://localhost:8001"
+    SHOPSPHERE_METRICS_URL: str = "http://localhost:8001/metrics"
+    INGEST_API_KEY: str = "devinsight-ingest-secret-2024"
+
     # Monitoring
     MONITORING_MODE: str = "demo"
 

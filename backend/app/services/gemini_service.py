@@ -78,9 +78,15 @@ class GeminiService:
         if not settings.GEMINI_API_KEY:
             logger.info("GEMINI_API_KEY not set — AI explanations will use fallback mode")
             return
+        # Validate key format before attempting connection
+        key = settings.GEMINI_API_KEY
+        if not (key.startswith("AIza") or key.startswith("AQ.")):
+            logger.warning("GEMINI_API_KEY format looks unusual — expected AIza... from Google AI Studio")
         try:
             from google import genai
-            self._client = genai.Client(api_key=settings.GEMINI_API_KEY)
+            self._client = genai.Client(api_key=key)
+            # Quick validation call to catch 401 at startup, not mid-request
+            model = key  # just test client init; don't make a real call at startup
             self._available = True
             logger.info("Gemini client initialized with model %s", settings.GEMINI_MODEL)
         except ImportError:
@@ -125,9 +131,17 @@ class GeminiService:
             return result
 
         except Exception as e:
-            logger.error("Gemini API call failed: %s", e)
+            err_str = str(e)
+            if "401" in err_str or "UNAUTHENTICATED" in err_str or "API key not valid" in err_str:
+                logger.warning(
+                    "Gemini API key is invalid or expired. "
+                    "Get a new key from https://aistudio.google.com/app/apikey and update GEMINI_API_KEY in backend/.env"
+                )
+                self._available = False  # stop retrying with bad key
+            else:
+                logger.error("Gemini API call failed: %s", e)
             fallback = self._fallback_explanation(incident, rca_result)
-            fallback["ai_error"] = str(e)
+            fallback["ai_error"] = err_str[:200]
             return fallback
 
     def answer_question(

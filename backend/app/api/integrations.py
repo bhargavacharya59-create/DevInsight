@@ -99,13 +99,21 @@ async def get_integrations():
     })
 
     # ShopSphere
+    from app.services.shopsphere_poller import get_poller_status
+    poller = get_poller_status()
     integrations.append({
         "name": "ShopSphere",
         "category": "application",
-        "status": "demo",
-        "message": "Integrated via demo telemetry. Configure telemetry exporters in ShopSphere to enable live mode.",
-        "configured": False,
-        "config_keys": ["SHOPSPHERE_URL"],
+        "status": "connected" if poller["shopsphere_reachable"] else "not_reachable",
+        "message": (
+            f"Scraping {poller['metrics_url']} — "
+            f"{poller['scrape_count']} scrapes, {poller['anomalies_detected']} anomalies"
+            if poller["shopsphere_reachable"]
+            else poller.get("last_error") or "ShopSphere not running (start on port 8001)"
+        ),
+        "configured": True,
+        "config_keys": ["SHOPSPHERE_URL", "SHOPSPHERE_METRICS_URL", "INGEST_API_KEY"],
+        "poller": poller,
     })
 
     # Grafana

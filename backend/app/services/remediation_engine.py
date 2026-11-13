@@ -175,8 +175,12 @@ async def run_remediation(
         candidates = rca.get("candidates", [])
         top_candidate = candidates[0] if candidates else {}
         affected_files = top_candidate.get("evidence", [])
-        # Try to get common ShopSphere backend files
-        common_files = ["app/routes/orders.py", "app/models/order.py", "app/main.py"]
+        # Try to get ShopSphere backend files — using the actual directory structure
+        common_files = [
+            "backend/app/services/order_service.py",
+            "backend/app/api/routes/orders.py",
+            "backend/app/main.py",
+        ]
         for f in common_files:
             content = await github_service.get_file_content(f)
             if content:
