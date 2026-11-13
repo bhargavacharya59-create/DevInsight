@@ -1,7 +1,6 @@
 version: '3.9'
 
 services:
-  # ── PostgreSQL ──────────────────────────────────────────────────────────────
   db:
     image: postgres:16-alpine
     container_name: devinsight-db
@@ -20,7 +19,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── Backend ─────────────────────────────────────────────────────────────────
   backend:
     build:
       context: ./backend
@@ -34,6 +32,9 @@ services:
       PROMETHEUS_URL: http://prometheus:9090
       LOKI_URL: http://loki:3100
       OTEL_COLLECTOR_URL: http://otel-collector:4318
+      SHOPSPHERE_URL: http://shopsphere-backend:8000
+      SHOPSPHERE_METRICS_URL: http://shopsphere-backend:8000/metrics
+      INGEST_API_KEY: ${INGEST_API_KEY:-}
       CORS_ORIGINS: http://localhost:5173,http://localhost:3000,http://frontend:80
     ports:
       - "8000:8000"
@@ -46,8 +47,12 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    networks:
+      default: {}
+      observability-net:
+        aliases:
+          - devinsight-backend
 
-  # ── Frontend ────────────────────────────────────────────────────────────────
   frontend:
     build:
       context: ./frontend
@@ -59,7 +64,6 @@ services:
     depends_on:
       - backend
 
-  # ── Prometheus ──────────────────────────────────────────────────────────────
   prometheus:
     image: prom/prometheus:v2.50.0
     container_name: devinsight-prometheus
@@ -73,8 +77,10 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--web.enable-lifecycle'
+    networks:
+      default: {}
+      observability-net: {}
 
-  # ── Loki ────────────────────────────────────────────────────────────────────
   loki:
     image: grafana/loki:2.9.4
     container_name: devinsight-loki
@@ -86,7 +92,6 @@ services:
       - loki_data:/loki
     command: -config.file=/etc/loki/local-config.yaml
 
-  # ── Grafana ─────────────────────────────────────────────────────────────────
   grafana:
     image: grafana/grafana:10.2.4
     container_name: devinsight-grafana
@@ -104,7 +109,6 @@ services:
       - prometheus
       - loki
 
-  # ── OpenTelemetry Collector ─────────────────────────────────────────────────
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.96.0
     container_name: devinsight-otel
@@ -113,15 +117,25 @@ services:
     volumes:
       - ./infra/otel/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
     ports:
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP
-      - "8888:8888"   # Prometheus metrics
+      - "4317:4317"
+      - "4318:4318"
+      - "8888:8888"
     depends_on:
       - prometheus
       - loki
+    networks:
+      default: {}
+      observability-net:
+        aliases:
+          - devinsight-otel
 
 volumes:
   postgres_data:
   prometheus_data:
   loki_data:
   grafana_data:
+
+networks:
+  observability-net:
+    name: observability-net
+    external: true
