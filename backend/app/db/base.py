@@ -8,13 +8,17 @@ class Base(DeclarativeBase):
     pass
 
 
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=False,
-    pool_size=10,
-    max_overflow=20,
-    pool_pre_ping=True,
-)
+# SQLite uses NullPool by default and does not accept QueuePool sizing options.
+# Keep the larger pool only for database drivers that support it (e.g. PostgreSQL).
+engine_options = {"echo": False}
+if not settings.DATABASE_URL.startswith("sqlite"):
+    engine_options.update(
+        pool_size=10,
+        max_overflow=20,
+        pool_pre_ping=True,
+    )
+
+engine = create_async_engine(settings.DATABASE_URL, **engine_options)
 
 AsyncSessionLocal = async_sessionmaker(
     engine,

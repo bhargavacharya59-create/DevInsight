@@ -33,7 +33,8 @@ class Settings(BaseSettings):
     # ShopSphere integration
     SHOPSPHERE_URL: str = "http://localhost:8001"
     SHOPSPHERE_METRICS_URL: str = "http://localhost:8001/metrics"
-    INGEST_API_KEY: str = "devinsight-ingest-secret-2024"
+    # No built-in ingest secret: configure the same strong value in both apps.
+    INGEST_API_KEY: Optional[str] = None
 
     # Monitoring
     MONITORING_MODE: str = "demo"

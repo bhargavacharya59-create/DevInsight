@@ -6,6 +6,7 @@ Authentication: X-API-Key header validated against INGEST_API_KEY env var.
 All ingest calls are fire-and-forget from ShopSphere — DevInsight must
 respond quickly (< 200ms). Heavy processing happens in background tasks.
 """
+import hmac
 import logging
 from datetime import datetime, UTC
 from typing import Any, Dict, List, Optional
@@ -23,8 +24,12 @@ router = APIRouter(prefix="/api/ingest", tags=["ingest"])
 
 def verify_ingest_key(request: Request) -> None:
     """Validate X-API-Key header. Raises 401 if missing or wrong."""
+    configured_key = settings.INGEST_API_KEY
+    if not configured_key:
+        logger.error("Ingest API key is not configured; refusing telemetry ingestion")
+        raise HTTPException(status_code=503, detail="Telemetry ingestion is not configured")
     key = request.headers.get("X-API-Key", "")
-    if not key or key != settings.INGEST_API_KEY:
+    if not key or not hmac.compare_digest(key, configured_key):
         logger.warning("Ingest auth failure from %s", request.client.host if request.client else "unknown")
         raise HTTPException(status_code=401, detail="Invalid or missing X-API-Key")
 
